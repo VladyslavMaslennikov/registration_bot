@@ -6,4 +6,4 @@ class RegistrationState(StatesGroup):
     choosing_hour = State()
     setting_phone_number = State()
     setting_username = State()
-    giving_instructions = State()
+    check_if_correct = State()
