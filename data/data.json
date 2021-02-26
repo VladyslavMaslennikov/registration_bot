@@ -1,0 +1,35 @@
+[
+   {
+      "kind":"calendar#event",
+      "etag":"\"3228744341372000\"",
+      "id":"6edo38bipdg9nsqftfo8r2t02o",
+      "status":"confirmed",
+      "htmlLink":"https://www.google.com/calendar/event?eid=NmVkbzM4YmlwZGc5bnNxZnRmbzhyMnQwMm8gZXFmOWVsYWJwa3Vib2dkMmJ1djRtdm1xZWdAZw",
+      "created":"2021-02-26T20:42:50.000Z",
+      "updated":"2021-02-26T20:42:50.686Z",
+      "summary":"Telegram Bot Register",
+      "description":"Fake registration",
+      "creator":{
+         "email":"maslennykov.v@gmail.com"
+      },
+      "organizer":{
+         "email":"eqf9elabpkubogd2buv4mvmqeg@group.calendar.google.com",
+         "displayName":"Telegram Bot Register",
+         "self":true
+      },
+      "start":{
+         "dateTime":"2021-02-26T18:30:00+02:00",
+         "timeZone":"Asia/Kolkata"
+      },
+      "end":{
+         "dateTime":"2021-02-26T19:30:00+02:00",
+         "timeZone":"Asia/Kolkata"
+      },
+      "iCalUID":"6edo38bipdg9nsqftfo8r2t02o@google.com",
+      "sequence":0,
+      "reminders":{
+         "useDefault":true
+      },
+      "eventType":"default"
+   }
+]

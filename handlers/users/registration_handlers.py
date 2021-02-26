@@ -43,6 +43,8 @@ async def process_name(callback_query: CallbackQuery, callback_data: dict, state
         await state.update_data(
             {"date": picked_date}
         )
+        from helpers.google_api import create_new_event
+        create_new_event(date)
         await callback_query.message.answer("Выберите время", reply_markup=ReplyKeyboardRemove())
         await RegistrationState.next()
 
