@@ -3,7 +3,7 @@ import logging
 from aiogram.dispatcher.filters import Command, CommandStart
 from aiogram.dispatcher.storage import FSMContext
 from aiogram import types
-from aiogram.types import ReplyKeyboardRemove, CallbackQuery
+from aiogram.types import ReplyKeyboardRemove, CallbackQuery, ReplyKeyboardMarkup, ContentType
 
 from helpers.dialogs import Dialog
 from helpers.menu import menu
@@ -29,8 +29,8 @@ async def show_menu(message: types.Message):
 
 @dp.message_handler(text=Dialog.book_session)
 async def open_calendar(message: types.Message):
+    await message.answer("Открываю календарь...", reply_markup=ReplyKeyboardRemove())
     await message.answer("Выберите дату", reply_markup=create_calendar())
-    # нужно убрать меню после вызова календаря
     await RegistrationState.picking_date.set()
 
 
@@ -39,6 +39,7 @@ async def process_name(callback_query: CallbackQuery, callback_data: dict, state
     selected, date = await process_calendar_selection(callback_query, callback_data)
     if selected:
         picked_date = date.strftime("%d/%m/%Y")
+        await callback_query.message.answer(f"Вы выбрали {picked_date}")
         await state.update_data(
             {"date": picked_date}
         )
@@ -84,11 +85,11 @@ async def ask_username(message: types.Message, state: FSMContext):
 
 @dp.callback_query_handler(data_correct_callback.filter(result="correct"), state=RegistrationState.check_if_correct)
 async def handle_correct_data(call: CallbackQuery, callback_data: dict):
-    print("correct is found")
-    await call.answer(cache_time=60)
+    await call.answer(cache_time=60)  # что бы апдейты не приходили какое-то время
     print(call.data)
     print(callback_data)
     logging.info(f"callback data dict {callback_data}")
-    await call.message.answer("Okay.")
+    # await call.message.edit_reply_markup(reply_markup=None)  # убрать инлайн кнопки
+    await call.message.answer("Гуд.")
 
 
