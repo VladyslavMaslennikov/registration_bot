@@ -10,6 +10,8 @@ from helpers.menu import menu
 from helpers.calendar import calendar_callback, create_calendar, process_calendar_selection
 from helpers.choice_buttons import choice, data_correct_callback
 
+from inline_buttons.hours import available_hours_callback
+
 from loader_model import dp
 
 from states import RegistrationState
@@ -43,11 +45,22 @@ async def process_name(callback_query: CallbackQuery, callback_data: dict, state
         await state.update_data(
             {"date": picked_date}
         )
-        from helpers.google_api import create_new_event
+
         # check available time for event
-        # create_new_event(date)
-        await callback_query.message.answer("Выберите время", reply_markup=ReplyKeyboardRemove())
+        import helpers.google_api as google_api
+        from inline_buttons.hours import return_inline_buttons_for_hours
+        available_hours = google_api.find_all_events_for_day(date)
+        hours_markup = return_inline_buttons_for_hours(available_hours)
+        await callback_query.message.answer("Выберите время", reply_markup=hours_markup)
+        # await callback_query.message.answer("Выберите время", reply_markup=ReplyKeyboardRemove())
         await RegistrationState.next()
+
+
+@dp.callback_query_handler(available_hours_callback.filter(), state=RegistrationState.choosing_hour)
+async def handle_available_hours(call: CallbackQuery, callback_data: dict):
+    await call.answer(cache_time=60)
+    print(call.data)
+    await call.message.answer(f"Выбрано: {call.data}")
 
 
 @dp.message_handler(state=RegistrationState.choosing_hour)
@@ -95,5 +108,3 @@ async def handle_correct_data(call: CallbackQuery, callback_data: dict):
     logging.info(f"callback data dict {callback_data}")
     # await call.message.edit_reply_markup(reply_markup=None)  # убрать инлайн кнопки
     await call.message.answer("Гуд.")
-
-

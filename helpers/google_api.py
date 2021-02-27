@@ -49,7 +49,6 @@ def find_all_events_for_day(date: datetime):
         calendarId=cal_id, timeMin=lower, timeMax=upper,
         maxResults=10, singleEvents=True,  # events from 10:00 to 22:00, max events 10
         orderBy='startTime').execute()
-    print(events)
     items = events.get('items', [])
     all_busy_hours = []
     for item in items:
@@ -59,6 +58,7 @@ def find_all_events_for_day(date: datetime):
     print(f"Busy hours for the day: {all_busy_hours}")
     available_hours = date_func.return_available_hours(all_busy_hours)
     print(f"Available hours are: {available_hours}")
+    return available_hours
 
 
 def create_new_event(date: datetime):
