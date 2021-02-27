@@ -7,6 +7,9 @@ from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from data.config import GOOGLE_CALENDAR_NAME as cal_name, GOOGLE_CALENDAR_ID as cal_id
+
+import helpers.date_functions as date_func
+
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/calendar.events']
 
@@ -40,39 +43,39 @@ def get_calendar_service():
 
 def find_all_events_for_day(date: datetime):
     service = get_calendar_service()
-    calendar = service.calendars().get(calendarId=cal_id).execute()  # finding calendar
-    print(calendar['summary'])
-    lower = datetime(date.year, date.month, date.day, 10).isoformat('T') + "Z"
-    upper = datetime(date.year, date.month, date.day, 22).isoformat('T') + "Z"
+    lower = datetime(date.year, date.month, date.day, 10).isoformat() + "Z"
+    upper = datetime(date.year, date.month, date.day, 22).isoformat() + "Z"
     events = service.events().list(
         calendarId=cal_id, timeMin=lower, timeMax=upper,
-        maxResults=10, singleEvents=True,
+        maxResults=10, singleEvents=True,  # events from 10:00 to 22:00, max events 10
         orderBy='startTime').execute()
-    events_dict = events.get('items', [])
-    print(events_dict)
-
-    # if not events:
-    #     print('No upcoming events found.')
-    # for event in events:
-    #     start = event['start'].get('dateTime', event['start'].get('date'))
-    #     print(start, event['summary'])
+    print(events)
+    items = events.get('items', [])
+    all_busy_hours = []
+    for item in items:
+        start = item["start"]["dateTime"]
+        end = item["end"]["dateTime"]
+        all_busy_hours = all_busy_hours + date_func.check_busy_hours(start, end)
+    print(f"Busy hours for the day: {all_busy_hours}")
+    available_hours = date_func.return_available_hours(all_busy_hours)
+    print(f"Available hours are: {available_hours}")
 
 
 def create_new_event(date: datetime):
     service = get_calendar_service()
     current_date = datetime(date.year, date.month, date.day, date.hour)
     start = current_date.isoformat()
-    end = (current_date + timedelta(hours=1)).isoformat()
+    end = (current_date + timedelta(hours=2)).isoformat()
 
     event_result = service.events().insert(calendarId=cal_id,
                                            body={
                                                "summary": cal_name,
                                                "description": 'Fake registration',
                                                "start": {
-                                                   "dateTime": start, "timeZone": 'EET'
+                                                   "dateTime": start, "timeZone": 'Europe/Kiev'
                                                },
                                                "end": {
-                                                   "dateTime": end, "timeZone": 'EET'
+                                                   "dateTime": end, "timeZone": 'Europe/Kiev'
                                                },
                                            }
                                            ).execute()

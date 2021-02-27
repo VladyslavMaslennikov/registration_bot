@@ -44,7 +44,8 @@ async def process_name(callback_query: CallbackQuery, callback_data: dict, state
             {"date": picked_date}
         )
         from helpers.google_api import create_new_event
-        create_new_event(date)
+        # check available time for event
+        # create_new_event(date)
         await callback_query.message.answer("Выберите время", reply_markup=ReplyKeyboardRemove())
         await RegistrationState.next()
 
@@ -56,6 +57,7 @@ async def show_available_dates(message: types.Message, state: FSMContext):
     await state.update_data(
         {"hour": picked_hour}
     )
+    # create new google calendar event
     await RegistrationState.next()
 
 
