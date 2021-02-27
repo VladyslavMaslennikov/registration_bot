@@ -9,8 +9,11 @@ from helpers.dialogs import Dialog
 from helpers.menu import menu
 from helpers.calendar import calendar_callback, create_calendar, process_calendar_selection
 from helpers.choice_buttons import choice, data_correct_callback
+from helpers.date_functions import day_is_correct
+import helpers.google_api as google_api
 
 from inline_buttons.hours import available_hours_callback
+from inline_buttons.hours import return_inline_buttons_for_hours
 
 from loader_model import dp
 
@@ -42,17 +45,23 @@ async def process_name(callback_query: CallbackQuery, callback_data: dict, state
     if selected:
         picked_date = date.strftime("%d/%m/%Y")
         await callback_query.message.answer(f"Вы выбрали {picked_date}")
-        await state.update_data(
-            {"date": picked_date}
-        )
-
         # check available time for event
-        import helpers.google_api as google_api
-        from inline_buttons.hours import return_inline_buttons_for_hours
+        day_is_ok = day_is_correct(date)
+        if not day_is_ok:
+            await callback_query.message.answer("Пожалуйста, выберите другой день",
+                                                reply_markup=create_calendar())
+            return
         available_hours = google_api.find_all_events_for_day(date)
+        if not available_hours:
+            await callback_query.message.answer("Нет свободной записи. Пожалуйста, выберите другой день",
+                                                reply_markup=create_calendar())
+            return
+        # proceed if date is correct and there are available hours
         hours_markup = return_inline_buttons_for_hours(available_hours)
         await callback_query.message.answer("Выберите время", reply_markup=hours_markup)
-        # await callback_query.message.answer("Выберите время", reply_markup=ReplyKeyboardRemove())
+        await state.update_data(
+             {"date": picked_date}
+        )
         await RegistrationState.next()
 
 

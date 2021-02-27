@@ -1,4 +1,5 @@
 from dateutil import parser
+from datetime import datetime, timedelta
 
 
 def check_busy_hours(start: str, end: str):
@@ -14,3 +15,11 @@ def return_available_hours(busy_hours: list):
         if hour in available_hours:
             available_hours.remove(hour)
     return available_hours
+
+
+def day_is_correct(date: datetime):
+    tomorrow = datetime.now() + timedelta(days=1)
+    if tomorrow < date:
+        return True
+    else:
+        return False
