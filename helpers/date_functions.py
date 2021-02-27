@@ -23,3 +23,8 @@ def day_is_correct(date: datetime):
         return True
     else:
         return False
+
+
+def get_date_from_string(date: str):
+    decoded_date = parser.parse(date)
+    return decoded_date

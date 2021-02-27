@@ -8,9 +8,8 @@ from aiogram.types import ReplyKeyboardRemove, CallbackQuery, ReplyKeyboardMarku
 from helpers.dialogs import Dialog
 from helpers.menu import menu
 from helpers.calendar import calendar_callback, create_calendar, process_calendar_selection
-from helpers.choice_buttons import choice, data_correct_callback
-from helpers.date_functions import day_is_correct
-import helpers.google_api as google_api
+from helpers.date_functions import day_is_correct, get_date_from_string
+from helpers.google_api import find_all_events_for_day, create_new_event
 
 from inline_buttons.hours import available_hours_callback
 from inline_buttons.hours import return_inline_buttons_for_hours
@@ -51,7 +50,7 @@ async def process_name(callback_query: CallbackQuery, callback_data: dict, state
             await callback_query.message.answer("Пожалуйста, выберите другой день",
                                                 reply_markup=create_calendar())
             return
-        available_hours = google_api.find_all_events_for_day(date)
+        available_hours = find_all_events_for_day(date)
         if not available_hours:
             await callback_query.message.answer("Нет свободной записи. Пожалуйста, выберите другой день",
                                                 reply_markup=create_calendar())
@@ -60,26 +59,20 @@ async def process_name(callback_query: CallbackQuery, callback_data: dict, state
         hours_markup = return_inline_buttons_for_hours(available_hours)
         await callback_query.message.answer("Выберите время", reply_markup=hours_markup)
         await state.update_data(
-             {"date": picked_date}
+            {"date": picked_date}
         )
         await RegistrationState.next()
 
 
 @dp.callback_query_handler(available_hours_callback.filter(), state=RegistrationState.choosing_hour)
-async def handle_available_hours(call: CallbackQuery, callback_data: dict):
+async def handle_available_hours(call: CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=60)
-    print(call.data)
-    await call.message.answer(f"Выбрано: {call.data}")
-
-
-@dp.message_handler(state=RegistrationState.choosing_hour)
-async def show_available_dates(message: types.Message, state: FSMContext):
-    picked_hour = message.text
-    await message.answer(text="Введите номер телефона")
+    picked_hour = callback_data.get("hour")
     await state.update_data(
-        {"hour": picked_hour}
+        {"hour": str(picked_hour) + ":00"}
     )
-    # create new google calendar event
+    await call.message.answer(f"Вы выбрали время на {picked_hour}:00. Пожалуйста, введите номер телефона")
+    await call.message.edit_reply_markup(reply_markup=None)
     await RegistrationState.next()
 
 
@@ -95,25 +88,22 @@ async def ask_phone_number(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=RegistrationState.setting_username)
 async def ask_username(message: types.Message, state: FSMContext):
-    username = message.text
-    await state.update_data(
-        {"username": username}
-    )
     await message.answer(text="Спасибо за регистрацию")
     user_data = await state.get_data()
-    response = f'Имя и фамилия: {user_data["username"]}\n' \
-               f'Телефон: {user_data["phone"]}\n' \
-               f'Дата записи: {user_data["date"]} {user_data["hour"]}'
+
+    user_name = message.text
+    user_phone = user_data["phone"]
+    register_date = get_date_from_string(user_data["date"] + " " + user_data["hour"])
+
+    response = f'Имя и фамилия: {user_name}\n' \
+               f'Телефон: {user_phone}\n' \
+               f'Дата записи: {register_date}'
     await message.answer(response)
-    await message.answer("Данные заполнены верно?", reply_markup=choice)
-    await RegistrationState.next()
+    await state.finish()
+    await state.reset_state(with_data=True)
+
+    event_created = create_new_event(register_date, user_name, user_phone)
+    if event_created:
+        await message.answer("Спасибо за регистрацию. Я свяжусь с Вами в течении дня.")
 
 
-@dp.callback_query_handler(data_correct_callback.filter(result="correct"), state=RegistrationState.check_if_correct)
-async def handle_correct_data(call: CallbackQuery, callback_data: dict):
-    await call.answer(cache_time=60)  # что бы апдейты не приходили какое-то время
-    print(call.data)
-    print(callback_data)
-    logging.info(f"callback data dict {callback_data}")
-    # await call.message.edit_reply_markup(reply_markup=None)  # убрать инлайн кнопки
-    await call.message.answer("Гуд.")

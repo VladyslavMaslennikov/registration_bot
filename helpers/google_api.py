@@ -6,7 +6,7 @@ import pickle
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
-from data.config import GOOGLE_CALENDAR_NAME as cal_name, GOOGLE_CALENDAR_ID as cal_id
+from data.config import GOOGLE_CALENDAR_ID as cal_id
 
 import helpers.date_functions as date_func
 
@@ -61,16 +61,16 @@ def find_all_events_for_day(date: datetime):
     return available_hours
 
 
-def create_new_event(date: datetime):
+def create_new_event(date: datetime, name: str, phone: str):
     service = get_calendar_service()
     current_date = datetime(date.year, date.month, date.day, date.hour)
     start = current_date.isoformat()
-    end = (current_date + timedelta(hours=2)).isoformat()
+    end = (current_date + timedelta(hours=1)).isoformat()
 
     event_result = service.events().insert(calendarId=cal_id,
                                            body={
-                                               "summary": cal_name,
-                                               "description": 'Fake registration',
+                                               "summary": f"Запись на сеанс: {name}",
+                                               "description": f"Номер телефона: {phone}",
                                                "start": {
                                                    "dateTime": start, "timeZone": 'Europe/Kiev'
                                                },
@@ -79,3 +79,4 @@ def create_new_event(date: datetime):
                                                },
                                            }
                                            ).execute()
+    return event_result
