@@ -5,3 +5,5 @@ GOOGLE_CLIENT_ID = "781626051596-4l7jui2l5i9068ujuuk44ujgb39k7tmf.apps.googleuse
 GOOGLE_CLIENT_SECRET = "MIkLFb4ODBg0zqBX7mVql2I7"
 GOOGLE_CALENDAR_NAME = "Telegram Bot Register"
 GOOGLE_CALENDAR_ID: str = "eqf9elabpkubogd2buv4mvmqeg@group.calendar.google.com"
+
+my_chat_id = 270518430
