@@ -18,8 +18,8 @@ def return_available_hours(busy_hours: list):
 
 
 def day_is_correct(date: datetime):
-    tomorrow = datetime.now() + timedelta(days=1)
-    if tomorrow < date:
+    today = datetime.now()
+    if today < date:
         return True
     else:
         return False

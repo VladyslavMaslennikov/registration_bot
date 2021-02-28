@@ -1,5 +1,20 @@
 class Dialog(object):
-    # 1. Main options
+    welcome_message = "Добро пожаловать. Для записи на сеанс пройдите в Меню."
+    opening_menu = "Открываю Меню..."
+    opening_calendar = "Открываю календарь..."
+    pick_date = "Выберите дату"
+    you_picked_day = "Вы выбрали"
+    pick_hour = "Выберите время"
+    you_picked_hour = "Вы выбрали время на"
+    enter_phone = ":00. Пожалуйста, введите номер телефона"
+    pick_another_day = "Пожалуйста, выберите другой день"
+    no_available_date = "Нет свободной записи. Пожалуйста, выберите другой день"
+    enter_name = "Введите имя и фамилию"
+    thanks_for_registration = "Спасибо за регистрацию. Я свяжусь с Вами в течении дня."
+    name_desc = "Имя и фамилия:"
+    phone_desc = "Телефон:"
+    date_desc = "Дата записи:"
+    # menu options
     book_session = "\U0001F4DD Записаться на сеанс"
     tattoo_care = "\U0001F481 Уход за тату"
     how_to_get = "\U0001F977 Как добраться"
