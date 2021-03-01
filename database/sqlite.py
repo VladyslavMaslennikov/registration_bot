@@ -1,4 +1,6 @@
 import sqlite3
+from datetime import datetime
+from helpers.date_functions import get_date_from_string
 
 
 class Database:
@@ -61,4 +63,32 @@ class Database:
             return True
 
     def get_all_clients(self):
-        return self.execute("SELECT phone FROM Clients", fetchAll=True)
+        return self.execute("SELECT * FROM Clients", fetchAll=True)
+
+    def delete_the_user(self, user_id: int):
+        sql = """
+                DELETE FROM Clients WHERE user_id = ?
+                """
+        parameters = (user_id,)
+        self.execute(sql, parameters, commit=True)
+
+    def check_if_user_has_appointment(self, user_id: int):
+        clients = self.get_all_clients()
+        if not clients:
+            return False
+        client = list(filter(lambda x: x[0] == user_id, clients))
+        if not client:
+            return False
+        client = client[0]
+        registration_date_str = client[3]
+        registration_date = get_date_from_string(registration_date_str)
+        current_date = datetime.now()
+        if registration_date < current_date:
+            self.delete_the_user(user_id)
+            return False
+        if registration_date > current_date:
+            return True
+        return False
+
+    def clear_database(self):
+        self.execute("DELETE FROM Clients", commit=True)

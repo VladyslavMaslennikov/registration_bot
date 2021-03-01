@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.dispatcher.filters import Command, CommandStart
 from aiogram.dispatcher.storage import FSMContext
 from aiogram.types import ReplyKeyboardRemove, CallbackQuery
-
+from datetime import datetime
 from helpers.calendar import calendar_callback, create_calendar, process_calendar_selection
 from helpers.date_functions import day_is_correct, get_date_from_string
 from helpers.dialogs import Dialog
@@ -10,7 +10,7 @@ from helpers.google_api import find_all_events_for_day, create_new_event
 from helpers.menu import menu
 from inline_buttons.hours import available_hours_callback
 from inline_buttons.hours import return_inline_buttons_for_hours
-from loader_model import dp
+from loader_model import dp, db
 from states import RegistrationState
 
 
@@ -26,11 +26,29 @@ async def show_menu(message: types.Message):
     await message.answer(Dialog.opening_menu, reply_markup=menu)
 
 
+@dp.message_handler(text=Dialog.cancel_session)
+async def cancel_session(message: types.Message):
+    # TODO: need to delete event from Google Calendar
+    user_id = message.chat.id
+    client_has_appointment = db.check_if_user_has_appointment(user_id)
+    if client_has_appointment:
+        db.delete_the_user(user_id)
+        await message.answer("Запись успешно отменена.")
+    else:
+        await message.answer("Вы не записаны на сеанс в ближайшее время.")
+
+
 @dp.message_handler(text=Dialog.book_session)
 async def open_calendar(message: types.Message):
-    await message.answer(Dialog.opening_calendar, reply_markup=ReplyKeyboardRemove())
-    await message.answer(Dialog.pick_date, reply_markup=create_calendar())
-    await RegistrationState.picking_date.set()
+    # TODO: check if client already has an appointment
+    user_id = message.chat.id
+    client_has_appointment = db.check_if_user_has_appointment(user_id)
+    if client_has_appointment:
+        await message.answer(Dialog.already_have_appointment)
+    else:
+        await message.answer(Dialog.opening_calendar, reply_markup=ReplyKeyboardRemove())
+        await message.answer(Dialog.pick_date, reply_markup=create_calendar())
+        await RegistrationState.picking_date.set()
 
 
 @dp.callback_query_handler(calendar_callback.filter(), state=RegistrationState.picking_date)
@@ -97,4 +115,7 @@ async def ask_username(message: types.Message, state: FSMContext):
 
     event_created = create_new_event(register_date, user_name, user_phone)
     if event_created:
+        user_id = message.chat.id
+        client_added = db.add_client(user_id, user_phone, f"{datetime.now()}", f"{register_date}", user_name)
+        print(client_added)
         await message.answer(Dialog.thanks_for_registration)

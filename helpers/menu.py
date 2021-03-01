@@ -6,7 +6,8 @@ from helpers.dialogs import Dialog
 menu = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(Dialog.book_session)
+            KeyboardButton(Dialog.book_session),
+            KeyboardButton(Dialog.cancel_session)
         ],
         [
             KeyboardButton(Dialog.tattoo_care),
