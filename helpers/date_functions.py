@@ -10,7 +10,7 @@ def check_busy_hours(start: str, end: str):
 
 
 def return_available_hours(busy_hours: list):
-    available_hours = [x for x in range(10, 19)] # working hours 10:00 - 19:00
+    available_hours = [x for x in range(10, 19)]  # working hours 10:00 - 19:00
     for hour in busy_hours:
         if hour in available_hours:
             available_hours.remove(hour)
