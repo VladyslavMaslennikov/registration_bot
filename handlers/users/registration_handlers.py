@@ -23,14 +23,14 @@ async def bot_start(message: types.Message):
     user_id = message.chat.id
     if user_id in admins:
         await dp.bot.set_my_commands(commands=[
-            BotCommand(command="menu", description="Меню для записи и другая информация"),
-            BotCommand(command="statistics", description="Показать статистику новых клиентов за n дней.")
+            BotCommand(command="menu", description=Dialog.menu_inline_description),
+            BotCommand(command="statistics", description=Dialog.show_statistics_for_delta)
         ])
 
 
 @dp.message_handler(Command("statistics"))
 async def ask_user_for_delta(message: types.Message, state: FSMContext):
-    await message.answer("Введи кол-во дней за которые хочешь увидеть статистику.")
+    await message.answer(Dialog.enter_day_number_for_statistics)
     await state.set_state("stats")
 
 
@@ -40,12 +40,12 @@ async def show_stats(message: types.Message, state: FSMContext):
     if delta.isdigit():
         clients = db.get_newly_registered_clients(int(delta))
         if clients:
-            await message.answer(f"Новые клиенты: \n{clients}")
+            await message.answer(f"{Dialog.new_clients_are}\n{clients}")
         else:
-            await message.answer("Нет новых записей за выбранную дату.")
+            await message.answer(Dialog.no_new_appointments)
         await state.finish()
     else:
-        await message.answer("Введи целое число.")
+        await message.answer(Dialog.enter_integer)
 
 
 # Menu handlers
@@ -60,9 +60,9 @@ async def cancel_session(message: types.Message):
     client_has_appointment = db.check_if_user_has_appointment(user_id)
     if client_has_appointment:
         db.delete_the_user(user_id)
-        await message.answer("Запись успешно отменена.")
+        await message.answer(Dialog.cancellation_success)
     else:
-        await message.answer("Вы не записаны на сеанс в ближайшее время.")
+        await message.answer(Dialog.no_appointment_for_you)
 
 
 @dp.message_handler(text=Dialog.book_session)
