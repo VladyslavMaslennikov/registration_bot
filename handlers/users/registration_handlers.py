@@ -1,7 +1,8 @@
 from aiogram import types
 from aiogram.dispatcher.filters import Command, CommandStart
 from aiogram.dispatcher.storage import FSMContext
-from aiogram.types import ReplyKeyboardRemove, CallbackQuery
+from aiogram.types import ReplyKeyboardRemove, CallbackQuery, BotCommand
+from data.config import admins
 from datetime import datetime
 from helpers.calendar import calendar_callback, create_calendar, process_calendar_selection
 from helpers.date_functions import day_is_correct, get_date_from_string
@@ -18,6 +19,33 @@ from states import RegistrationState
 @dp.message_handler(CommandStart())
 async def bot_start(message: types.Message):
     await message.answer(Dialog.welcome_message)
+    # set admin command
+    user_id = message.chat.id
+    if user_id in admins:
+        await dp.bot.set_my_commands(commands=[
+            BotCommand(command="menu", description="Меню для записи и другая информация"),
+            BotCommand(command="statistics", description="Показать статистику новых клиентов за n дней.")
+        ])
+
+
+@dp.message_handler(Command("statistics"))
+async def ask_user_for_delta(message: types.Message, state: FSMContext):
+    await message.answer("Введи кол-во дней за которые хочешь увидеть статистику.")
+    await state.set_state("stats")
+
+
+@dp.message_handler(state="stats")
+async def show_stats(message: types.Message, state: FSMContext):
+    delta = message.text
+    if delta.isdigit():
+        clients = db.get_newly_registered_clients(int(delta))
+        if clients:
+            await message.answer(f"Новые клиенты: \n{clients}")
+        else:
+            await message.answer("Нет новых записей за выбранную дату.")
+        await state.finish()
+    else:
+        await message.answer("Введи целое число.")
 
 
 # Menu handlers
@@ -110,7 +138,7 @@ async def ask_username(message: types.Message, state: FSMContext):
     user_name = message.text
     user_phone = user_data["phone"]
     dt = get_date_from_string(user_data["date"] + " " + user_data["hour"])
-    date_desc = date_desc = f"{dt.year}-{dt.month}-{dt.day} {dt.hour}:00"
+    date_desc = f"{dt.year}-{dt.month}-{dt.day} {dt.hour}:00"
     response = f'{Dialog.name_desc} {user_name}\n' \
                f'{Dialog.phone_desc} {user_phone}\n' \
                f'{Dialog.date_desc} {date_desc}'

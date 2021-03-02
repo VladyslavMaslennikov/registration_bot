@@ -7,3 +7,4 @@ GOOGLE_CALENDAR_NAME = "Telegram Bot Register"
 GOOGLE_CALENDAR_ID: str = "eqf9elabpkubogd2buv4mvmqeg@group.calendar.google.com"
 
 my_chat_id = 270518430
+admins = [my_chat_id]
