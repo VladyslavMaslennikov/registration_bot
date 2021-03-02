@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import os.path
 import pickle
 
+import googleapiclient.errors
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
@@ -80,3 +81,27 @@ def create_new_event(date: datetime, name: str, phone: str):
                                            }
                                            ).execute()
     return event_result
+
+
+def delete_event(date: str):
+    register_date = date_func.get_date_from_string(date)
+    service = get_calendar_service()
+
+    service = get_calendar_service()
+    lower = datetime(register_date.year, register_date.month, register_date.day, 10).isoformat() + "Z"
+    upper = datetime(register_date.year, register_date.month, register_date.day, 22).isoformat() + "Z"
+    events = service.events().list(
+        calendarId=cal_id, timeMin=lower, timeMax=upper,
+        maxResults=1, singleEvents=True,  # events from 10:00 to 22:00, max events 10
+        orderBy='startTime').execute()
+    items = events.get('items', [])
+    for item in items:
+        event_id = item["id"]
+        try:
+            service.events().delete(
+                calendarId=cal_id,
+                eventId=event_id,
+            ).execute()
+        except googleapiclient.errors.HttpError:
+            print("Failed to delete event")
+        print("Event deleted")

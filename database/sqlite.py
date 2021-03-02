@@ -1,6 +1,7 @@
 import sqlite3
 from datetime import datetime
 from helpers.date_functions import get_date_from_string
+from helpers.google_api import delete_event
 
 
 class Database:
@@ -70,6 +71,10 @@ class Database:
                 DELETE FROM Clients WHERE user_id = ?
                 """
         parameters = (user_id,)
+        client = self.get_client(user_id)
+        if client:
+            registered_date = client[3]
+            delete_event(registered_date)
         self.execute(sql, parameters, commit=True)
 
     def check_if_user_has_appointment(self, user_id: int):
