@@ -1,5 +1,5 @@
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 from helpers.date_functions import get_date_from_string
 from helpers.google_api import delete_event
 
@@ -97,3 +97,23 @@ class Database:
 
     def clear_database(self):
         self.execute("DELETE FROM Clients", commit=True)
+
+    def get_newly_registered_clients(self, delta: int):
+        clients = self.get_all_clients()
+        current_date = datetime.now()
+        lower_date = current_date - timedelta(days=delta)
+        if not clients:
+            return None
+        else:
+            new_clients = list()
+            for client in clients:
+                creation_date = get_date_from_string(client[2])
+                if lower_date < creation_date < current_date:
+                    name = client[4]
+                    phone = client[1]
+                    registered = client[3]
+                    client_desc = f"Имя: {name}, телефон: {phone}, дата записи: {registered}"
+                    print(client_desc)
+                    new_clients.append(client_desc)
+            return new_clients
+

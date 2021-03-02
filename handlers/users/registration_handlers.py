@@ -28,7 +28,6 @@ async def show_menu(message: types.Message):
 
 @dp.message_handler(text=Dialog.cancel_session)
 async def cancel_session(message: types.Message):
-    # TODO: need to delete event from Google Calendar
     user_id = message.chat.id
     client_has_appointment = db.check_if_user_has_appointment(user_id)
     if client_has_appointment:
@@ -40,11 +39,16 @@ async def cancel_session(message: types.Message):
 
 @dp.message_handler(text=Dialog.book_session)
 async def open_calendar(message: types.Message):
-    # TODO: check if client already has an appointment
     user_id = message.chat.id
     client_has_appointment = db.check_if_user_has_appointment(user_id)
     if client_has_appointment:
         await message.answer(Dialog.already_have_appointment)
+        client = db.get_client(user_id)
+        if client:
+            registered_date = client[3]
+            dt = get_date_from_string(registered_date)
+            date_desc = f"{dt.year}-{dt.month}-{dt.day} {dt.hour}:00"
+            await message.answer(Dialog.date_desc + f" {date_desc}")
     else:
         await message.answer(Dialog.opening_calendar, reply_markup=ReplyKeyboardRemove())
         await message.answer(Dialog.pick_date, reply_markup=create_calendar())
@@ -105,17 +109,18 @@ async def ask_username(message: types.Message, state: FSMContext):
 
     user_name = message.text
     user_phone = user_data["phone"]
-    register_date = get_date_from_string(user_data["date"] + " " + user_data["hour"])
+    dt = get_date_from_string(user_data["date"] + " " + user_data["hour"])
+    date_desc = date_desc = f"{dt.year}-{dt.month}-{dt.day} {dt.hour}:00"
     response = f'{Dialog.name_desc} {user_name}\n' \
                f'{Dialog.phone_desc} {user_phone}\n' \
-               f'{Dialog.date_desc} {register_date}'
+               f'{Dialog.date_desc} {date_desc}'
     await message.answer(response)
     await state.finish()
     await state.reset_state(with_data=True)
 
-    event_created = create_new_event(register_date, user_name, user_phone)
+    event_created = create_new_event(dt, user_name, user_phone)
     if event_created:
         user_id = message.chat.id
-        client_added = db.add_client(user_id, user_phone, f"{datetime.now()}", f"{register_date}", user_name)
+        client_added = db.add_client(user_id, user_phone, f"{datetime.now()}", f"{dt}", user_name)
         print(client_added)
         await message.answer(Dialog.thanks_for_registration)
