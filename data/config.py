@@ -1,7 +1,12 @@
-#  bot token
-BOT_TOKEN = "1588532442:AAEaty_0_VZ46KmZWcxLDut27buouC_Vtao"
-# /Users/vladyslav/Desktop/Bots/First_Bot/venv/bin/python3 - директория
-GOOGLE_CALENDAR_ID: str = "odonatum.tatoo.bot@gmail.com"
+import os
+from dotenv import load_dotenv
 
-my_chat_id = 270518430
-admins = [my_chat_id]
+load_dotenv()
+
+BOT_TOKEN = str(os.getenv("BOT_TOKEN"))
+# /Users/vladyslav/Desktop/Bots/First_Bot/venv/bin/python3 - директория
+GOOGLE_CALENDAR_ID = str(os.getenv("GOOGLE_CALENDAR_ID"))
+
+admins = [
+    270518430  # my chat_id
+]
