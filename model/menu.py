@@ -1,6 +1,6 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-from helpers.dialogs import Dialog
+from model.dialogs import Dialog
 
 
 menu = ReplyKeyboardMarkup(

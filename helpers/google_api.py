@@ -9,7 +9,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from data.config import GOOGLE_CALENDAR_ID as cal_id
 
-import helpers.date_functions as date_func
+from helpers.date_helper import DateHelper
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/calendar.events']
@@ -55,9 +55,9 @@ def find_all_events_for_day(date: datetime):
     for item in items:
         start = item["start"]["dateTime"]
         end = item["end"]["dateTime"]
-        all_busy_hours = all_busy_hours + date_func.check_busy_hours(start, end)
+        all_busy_hours = all_busy_hours + DateHelper.check_busy_hours(start, end)
     print(f"Busy hours for the day: {all_busy_hours}")
-    available_hours = date_func.return_available_hours(all_busy_hours)
+    available_hours = DateHelper.return_available_hours(all_busy_hours)
     print(f"Available hours are: {available_hours}")
     return available_hours
 
@@ -84,9 +84,7 @@ def create_new_event(date: datetime, name: str, phone: str):
 
 
 def delete_event(date: str):
-    register_date = date_func.get_date_from_string(date)
-    service = get_calendar_service()
-
+    register_date = DateHelper.get_date_from_string(date)
     service = get_calendar_service()
     lower = datetime(register_date.year, register_date.month, register_date.day, 10).isoformat() + "Z"
     upper = datetime(register_date.year, register_date.month, register_date.day, 22).isoformat() + "Z"

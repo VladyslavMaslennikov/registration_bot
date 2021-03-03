@@ -1,7 +1,7 @@
 from aiogram import types
 from filters import MenuCommand
-from helpers.dialogs import Dialog
-from helpers.menu import menu
+from model.dialogs import Dialog
+from model.menu import menu
 
 from loader_model import dp
 

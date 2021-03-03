@@ -5,7 +5,7 @@ from aiogram.types.bot_command import BotCommand
 
 from data.config import admins
 
-from helpers.dialogs import Dialog
+from model.dialogs import Dialog
 
 from loader_model import dp, db
 

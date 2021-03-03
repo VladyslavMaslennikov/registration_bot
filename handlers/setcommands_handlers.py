@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.dispatcher.storage import FSMContext
 
 from filters import ShowStatisticsCommand
-from helpers.dialogs import Dialog
+from model.dialogs import Dialog
 
 from loader_model import db, dp
 

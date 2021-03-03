@@ -1,7 +1,7 @@
 import sqlite3
 from datetime import datetime, timedelta
-from helpers.date_functions import get_date_from_string
-from helpers.google_api import delete_event
+from helpers.date_helper import DateHelper
+from helpers import google_api
 
 
 class Database:
@@ -74,7 +74,7 @@ class Database:
         client = self.get_client(user_id)
         if client:
             registered_date = client[3]
-            delete_event(registered_date)
+            google_api.delete_event(registered_date)
         self.execute(sql, parameters, commit=True)
 
     def check_if_user_has_appointment(self, user_id: int):
@@ -86,7 +86,7 @@ class Database:
             return False
         client = client[0]
         registration_date_str = client[3]
-        registration_date = get_date_from_string(registration_date_str)
+        registration_date = DateHelper.get_date_from_string(registration_date_str)
         current_date = datetime.now()
         if registration_date < current_date:
             self.delete_the_user(user_id)
@@ -107,7 +107,7 @@ class Database:
         else:
             new_clients = ""
             for client in clients:
-                creation_date = get_date_from_string(client[2])
+                creation_date = DateHelper.get_date_from_string(client[2])
                 if lower_date < creation_date < current_date:
                     name = client[4]
                     phone = client[1]
@@ -116,4 +116,3 @@ class Database:
                     print(client_desc)
                     new_clients += client_desc
             return new_clients
-

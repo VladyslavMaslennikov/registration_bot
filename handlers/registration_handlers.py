@@ -7,8 +7,8 @@ from datetime import datetime
 from filters import CancelCommand, BookSessionCommand
 
 from helpers.calendar import calendar_callback, create_calendar, process_calendar_selection
-from helpers.date_functions import day_is_correct, get_date_from_string
-from helpers.dialogs import Dialog
+from helpers.date_helper import DateHelper
+from model.dialogs import Dialog
 from helpers.google_api import find_all_events_for_day, create_new_event
 from inline_buttons.hours import available_hours_callback
 from inline_buttons.hours import return_inline_buttons_for_hours
@@ -36,7 +36,7 @@ async def open_calendar(message: types.Message):
         client = db.get_client(user_id)
         if client:
             registered_date = client[3]
-            dt = get_date_from_string(registered_date)
+            dt = DateHelper.get_date_from_string(registered_date)
             date_desc = f"{dt.year}-{dt.month}-{dt.day} {dt.hour}:00"
             await message.answer(Dialog.date_desc + f" {date_desc}")
     else:
@@ -52,7 +52,7 @@ async def process_name(callback_query: CallbackQuery, callback_data: dict, state
         picked_date = date.strftime("%m/%d/%Y")
         await callback_query.message.answer(f"{Dialog.you_picked_day} {picked_date}")
         # check available time for event
-        day_is_ok = day_is_correct(date)
+        day_is_ok = DateHelper.day_is_correct(date)
         if not day_is_ok:
             await callback_query.message.answer(Dialog.pick_another_day,
                                                 reply_markup=create_calendar())
@@ -99,7 +99,7 @@ async def ask_username(message: types.Message, state: FSMContext):
 
     user_name = message.text
     user_phone = user_data["phone"]
-    dt = get_date_from_string(user_data["date"] + " " + user_data["hour"])
+    dt = DateHelper.get_date_from_string(user_data["date"] + " " + user_data["hour"])
     date_desc = f"{dt.year}-{dt.month}-{dt.day} {dt.hour}:00"
     response = f'{Dialog.name_desc} {user_name}\n' \
                f'{Dialog.phone_desc} {user_phone}\n' \

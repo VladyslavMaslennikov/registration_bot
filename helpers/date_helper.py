@@ -1,0 +1,32 @@
+from dateutil import parser
+from datetime import datetime
+
+
+class DateHelper(object):
+    @staticmethod
+    def check_busy_hours(start: str, end: str):
+        start_date = parser.parse(start)
+        end_date = parser.parse(end)
+        busy_hours = [x for x in range(start_date.hour, end_date.hour)]
+        return busy_hours
+
+    @staticmethod
+    def return_available_hours(busy_hours: list):
+        available_hours = [x for x in range(10, 19)]  # working hours 10:00 - 19:00
+        for hour in busy_hours:
+            if hour in available_hours:
+                available_hours.remove(hour)
+        return available_hours
+
+    @staticmethod
+    def day_is_correct(date: datetime):
+        today = datetime.now()
+        if today < date:
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def get_date_from_string(date: str):
+        decoded_date = parser.parse(date)
+        return decoded_date
