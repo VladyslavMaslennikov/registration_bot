@@ -17,3 +17,13 @@ class BookSessionCommand(BoundFilter):
 class MenuCommand(BoundFilter):
     async def check(self, message: types.Message) -> bool:
         return message.text == "/menu"
+
+
+class GetDestinationCommand(BoundFilter):
+    async def check(self, message: types.Message) -> bool:
+        return message.text == Dialog.how_to_get
+
+
+class GetCareInfoCommand(BoundFilter):
+    async def check(self, message: types.Message) -> bool:
+        return message.text == Dialog.tattoo_care

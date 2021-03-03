@@ -11,10 +11,10 @@ from loader_model import dp, db
 
 
 # trigger action when bot runs
-async def notify_on_startup(dp: Dispatcher):
-    # TODO: need to setup admin commands below
-    # TODO: await dp.bot.send_message(chat_id=my_chat_id, text="Привет, админ")
-    # TODO: db.clear_database() ??? + delete google events
+async def notify_on_startup(dispatcher: Dispatcher):
+    await dispatcher.bot.set_my_commands(commands=[
+        BotCommand(command="menu", description=Dialog.menu_inline_description)
+    ])
     try:
         db.create_table()  # создаем таблицу если ее нет
     except Exception as e:
@@ -31,6 +31,7 @@ async def bot_start(message: types.Message):
     await message.answer(Dialog.welcome_message)
     # set admin command
     user_id = message.chat.id
+    print(user_id)
     if user_id in admins:
         await dp.bot.set_my_commands(commands=[
             BotCommand(command="menu", description=Dialog.menu_inline_description),

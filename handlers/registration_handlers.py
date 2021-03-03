@@ -13,9 +13,11 @@ from helpers.google_api import find_all_events_for_day, create_new_event
 from inline_buttons.hours import available_hours_callback
 from inline_buttons.hours import return_inline_buttons_for_hours
 from loader_model import dp, db
+from middlewares.throttling_middleware import rate_limit
 from states import RegistrationState
 
 
+@rate_limit(10)
 @dp.message_handler(CancelCommand())
 async def cancel_session(message: types.Message):
     user_id = message.chat.id
