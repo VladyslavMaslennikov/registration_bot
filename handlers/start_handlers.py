@@ -12,9 +12,6 @@ from loader_model import dp, db
 
 # trigger action when bot runs
 async def notify_on_startup(dispatcher: Dispatcher):
-    await dispatcher.bot.set_my_commands(commands=[
-        BotCommand(command="menu", description=Dialog.menu_inline_description)
-    ])
     try:
         db.create_table()  # создаем таблицу если ее нет
     except Exception as e:
@@ -36,5 +33,9 @@ async def bot_start(message: types.Message):
         await dp.bot.set_my_commands(commands=[
             BotCommand(command="menu", description=Dialog.menu_inline_description),
             BotCommand(command="statistics", description=Dialog.show_statistics_for_delta)
+        ])
+    else:
+        await dp.bot.set_my_commands(commands=[
+            BotCommand(command="menu", description=Dialog.menu_inline_description)
         ])
 

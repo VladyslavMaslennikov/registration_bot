@@ -12,5 +12,4 @@ admins = [
     318852507  # lena id
 ]
 
-krakow_lat = 50.038305
-krakow_lon = 19.9406286
+krakow_address = "https://goo.gl/maps/sUEwTP1RxVv1adsd7"

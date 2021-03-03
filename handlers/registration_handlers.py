@@ -17,7 +17,7 @@ from middlewares.throttling_middleware import rate_limit
 from states import RegistrationState
 
 
-@rate_limit(10)
+@rate_limit(5)
 @dp.message_handler(CancelCommand())
 async def cancel_session(message: types.Message):
     user_id = message.chat.id
@@ -29,6 +29,7 @@ async def cancel_session(message: types.Message):
         await message.answer(Dialog.no_appointment_for_you)
 
 
+@rate_limit(5)
 @dp.message_handler(BookSessionCommand())
 async def open_calendar(message: types.Message):
     user_id = message.chat.id
