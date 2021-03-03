@@ -1,60 +1,22 @@
 from aiogram import types
-from aiogram.dispatcher.filters import Command, CommandStart
 from aiogram.dispatcher.storage import FSMContext
-from aiogram.types import ReplyKeyboardRemove, CallbackQuery, BotCommand
-from data.config import admins
+from aiogram.types import ReplyKeyboardRemove, CallbackQuery
+
 from datetime import datetime
+
+from filters import CancelCommand, BookSessionCommand
+
 from helpers.calendar import calendar_callback, create_calendar, process_calendar_selection
 from helpers.date_functions import day_is_correct, get_date_from_string
 from helpers.dialogs import Dialog
 from helpers.google_api import find_all_events_for_day, create_new_event
-from helpers.menu import menu
 from inline_buttons.hours import available_hours_callback
 from inline_buttons.hours import return_inline_buttons_for_hours
 from loader_model import dp, db
 from states import RegistrationState
 
 
-# Start handler
-@dp.message_handler(CommandStart())
-async def bot_start(message: types.Message):
-    await message.answer(Dialog.welcome_message)
-    # set admin command
-    user_id = message.chat.id
-    if user_id in admins:
-        await dp.bot.set_my_commands(commands=[
-            BotCommand(command="menu", description=Dialog.menu_inline_description),
-            BotCommand(command="statistics", description=Dialog.show_statistics_for_delta)
-        ])
-
-
-@dp.message_handler(Command("statistics"))
-async def ask_user_for_delta(message: types.Message, state: FSMContext):
-    await message.answer(Dialog.enter_day_number_for_statistics)
-    await state.set_state("stats")
-
-
-@dp.message_handler(state="stats")
-async def show_stats(message: types.Message, state: FSMContext):
-    delta = message.text
-    if delta.isdigit():
-        clients = db.get_newly_registered_clients(int(delta))
-        if clients:
-            await message.answer(f"{Dialog.new_clients_are}\n{clients}")
-        else:
-            await message.answer(Dialog.no_new_appointments)
-        await state.finish()
-    else:
-        await message.answer(Dialog.enter_integer)
-
-
-# Menu handlers
-@dp.message_handler(Command("menu"))
-async def show_menu(message: types.Message):
-    await message.answer(Dialog.opening_menu, reply_markup=menu)
-
-
-@dp.message_handler(text=Dialog.cancel_session)
+@dp.message_handler(CancelCommand())
 async def cancel_session(message: types.Message):
     user_id = message.chat.id
     client_has_appointment = db.check_if_user_has_appointment(user_id)
@@ -65,7 +27,7 @@ async def cancel_session(message: types.Message):
         await message.answer(Dialog.no_appointment_for_you)
 
 
-@dp.message_handler(text=Dialog.book_session)
+@dp.message_handler(BookSessionCommand())
 async def open_calendar(message: types.Message):
     user_id = message.chat.id
     client_has_appointment = db.check_if_user_has_appointment(user_id)

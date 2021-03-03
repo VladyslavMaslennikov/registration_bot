@@ -105,15 +105,15 @@ class Database:
         if not clients:
             return None
         else:
-            new_clients = list()
+            new_clients = ""
             for client in clients:
                 creation_date = get_date_from_string(client[2])
                 if lower_date < creation_date < current_date:
                     name = client[4]
                     phone = client[1]
                     registered = client[3]
-                    client_desc = f"Имя: {name}, телефон: {phone}, дата записи: {registered}"
+                    client_desc = f"Имя: {name}, телефон: {phone}, дата записи: {registered}\n"
                     print(client_desc)
-                    new_clients.append(client_desc)
+                    new_clients += client_desc
             return new_clients
 
