@@ -32,7 +32,7 @@ def get_calendar_service():
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
                 CREDENTIALS_FILE, SCOPES)
-            credentials = flow.run_local_server(host="3.20.233.49", port=22)
+            credentials = flow.run_local_server(port=8080)
 
         # Save the credentials for the next run
         with open('token.pickle', 'wb') as token:
