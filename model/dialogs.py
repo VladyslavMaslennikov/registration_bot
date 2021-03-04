@@ -40,5 +40,5 @@ class Dialog(object):
     # menu options
     book_session = "\U0001F4DD Записаться на сеанс"
     tattoo_care = "\U0001F481 Уход за тату"
-    how_to_get = "\U0001F977 Как добраться"
+    how_to_get = "\U0001F4CD Контакты"
     cancel_session = "\U0001F645 Отменить запись"
