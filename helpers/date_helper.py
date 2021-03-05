@@ -30,3 +30,11 @@ class DateHelper(object):
     def get_date_from_string(date: str):
         decoded_date = parser.parse(date)
         return decoded_date
+
+    @staticmethod
+    def get_formatted_date(date: str, hour: int) -> str:
+        dt = DateHelper.get_date_from_string(date)
+        month = f"{dt.month}" if dt.month > 9 else f"0{dt.month}"
+        day = f"{dt.day}" if dt.day > 9 else f"0{dt.day}"
+        res = f"{day}.{month}.{dt.year} {hour}:00"
+        return res

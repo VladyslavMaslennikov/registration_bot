@@ -2,6 +2,6 @@ from aiogram.dispatcher.filters import BoundFilter
 from aiogram import types
 
 
-class ShowStatisticsCommand(BoundFilter):
+class ShowUpcomingEventsCommand(BoundFilter):
     async def check(self, message: types.Message) -> bool:
-        return message.text == "/statistics"
+        return message.text == "/calendar"

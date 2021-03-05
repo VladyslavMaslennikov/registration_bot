@@ -134,3 +134,14 @@ class Database:
         available_hours = DateHelper.return_available_hours(all_busy_hours)
         print(f"Available hours are: {available_hours}")
         return available_hours
+
+    def find_all_events_in_range(self):
+        lower = datetime.now()
+        upper = datetime(lower.year + 1, lower.month, lower.day)
+        all_clients = self.get_all_clients()
+        filtered = []
+        for client in all_clients:
+            date = DateHelper.get_date_from_string(client[3])
+            if lower < date < upper:
+                filtered.append(client)
+        return filtered

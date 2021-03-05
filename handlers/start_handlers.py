@@ -32,7 +32,8 @@ async def bot_start(message: types.Message):
     if user_id in admins:
         await dp.bot.set_my_commands(commands=[
             BotCommand(command="menu", description=Dialog.menu_inline_description),
-            BotCommand(command="statistics", description=Dialog.show_statistics_for_delta)
+            # BotCommand(command="statistics", description=Dialog.show_statistics_for_delta),
+            BotCommand(command="calendar", description="Показать ближайшие записи")
         ])
     else:
         await dp.bot.set_my_commands(commands=[

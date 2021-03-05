@@ -39,11 +39,8 @@ async def open_calendar(message: types.Message):
         if client:
             registered_date = client[3]
             session_start = client[4]
-            dt = DateHelper.get_date_from_string(registered_date)
-            month = f"{dt.month}" if dt.month > 9 else f"0{dt.month}"
-            day = f"{dt.day}" if dt.day > 9 else f"0{dt.day}"
-            date_desc = f"{day}.{month}.{dt.year} {session_start}:00"
-            await message.answer(Dialog.date_desc + f" {date_desc}")
+            res = DateHelper.get_formatted_date(registered_date, session_start)
+            await message.answer(Dialog.date_desc + " " + res)
     else:
         await message.answer(Dialog.opening_calendar, reply_markup=ReplyKeyboardRemove())
         await message.answer(Dialog.pick_date, reply_markup=create_calendar())
@@ -54,7 +51,8 @@ async def open_calendar(message: types.Message):
 async def process_name(callback_query: CallbackQuery, callback_data: dict, state: FSMContext):
     selected, date = await process_calendar_selection(callback_query, callback_data)
     if selected:
-        picked_date = date.strftime("%m/%d/%Y")
+        print(date)
+        picked_date = date.strftime("%d.%m.%Y")
         await callback_query.message.answer(f"{Dialog.you_picked_day} {picked_date}")
         # check available time for event
         day_is_ok = DateHelper.day_is_correct(date)
@@ -71,7 +69,7 @@ async def process_name(callback_query: CallbackQuery, callback_data: dict, state
         hours_markup = return_inline_buttons_for_hours(available_hours)
         await callback_query.message.answer(Dialog.pick_hour, reply_markup=hours_markup)
         await state.update_data(
-            {"date": picked_date}
+            {"date": f"{date}"}
         )
         await RegistrationState.next()
 
@@ -106,20 +104,18 @@ async def ask_username(message: types.Message, state: FSMContext):
     user_phone = user_data["phone"]
     start_hour = int(user_data["hour"])
     end_hour = int(start_hour + 1)
-    dt = DateHelper.get_date_from_string(user_data["date"] + " " + f"{start_hour}")
-    month = f"{dt.month}" if dt.month > 9 else f"0{dt.month}"
-    day = f"{dt.day}" if dt.day > 9 else f"0{dt.day}"
-    date_desc = f"{day}.{month}.{dt.year} {start_hour}:00"
+    date = user_data["date"]
+    res = DateHelper.get_formatted_date(date, start_hour)
     response = f'{Dialog.name_desc} {user_name}\n' \
                f'{Dialog.phone_desc} {user_phone}\n' \
-               f'{Dialog.date_desc} {date_desc}'
+               f'{Dialog.date_desc} {res}'
     await message.answer(response)
     await state.finish()
     await state.reset_state(with_data=True)
 
     user_id = message.chat.id
     client_added = db.add_client(user_id=user_id,phone=user_phone, creation_date=f"{datetime.now()}",
-                                 registration_date=f"{dt}", start=start_hour, end=end_hour,
+                                 registration_date=date, start=start_hour, end=end_hour,
                                  user_name=user_name, deposit=0)
     print(client_added)
     await message.answer(Dialog.thanks_for_registration)
