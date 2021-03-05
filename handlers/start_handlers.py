@@ -16,7 +16,6 @@ async def notify_on_startup(dispatcher: Dispatcher):
         db.create_table()  # создаем таблицу если ее нет
     except Exception as e:
         print(e)
-    db.get_newly_registered_clients(1)
     # clients = db.get_all_clients()
     # for client in clients:
     #     print(client)

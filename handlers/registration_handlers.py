@@ -103,7 +103,7 @@ async def ask_username(message: types.Message, state: FSMContext):
     user_name = message.text
     user_phone = user_data["phone"]
     start_hour = int(user_data["hour"])
-    end_hour = int(start_hour + 1)
+    end_hour = int(start_hour + 3)
     date = user_data["date"]
     res = DateHelper.get_formatted_date(date, start_hour)
     response = f'{Dialog.name_desc} {user_name}\n' \

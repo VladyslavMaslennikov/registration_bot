@@ -98,38 +98,16 @@ class Database:
     def clear_database(self):
         self.execute("DELETE FROM Clients", commit=True)
 
-    def get_newly_registered_clients(self, delta: int):
-        clients = self.get_all_clients()
-        current_date = datetime.now()
-        lower_date = current_date - timedelta(days=delta)
-        if not clients:
-            return None
-        else:
-            new_clients = ""
-            for client in clients:
-                creation_date = DateHelper.get_date_from_string(client[2])
-                if lower_date < creation_date < current_date:
-                    name = client[6]
-                    phone = client[1]
-                    dt = DateHelper.get_date_from_string(client[3])
-
-                    month = f"{dt.month}" if dt.month > 9 else f"0{dt.month}"
-                    day = f"{dt.day}" if dt.day > 9 else f"0{dt.day}"
-                    registered = f"{day}.{month}.{dt.year} {client[4]}:00-{client[5]}:00"
-                    client_desc = f"Имя: {name}, телефон: {phone}, дата записи: {registered}\n"
-                    print(client_desc)
-                    new_clients += client_desc
-            return new_clients
-
     def find_all_events_for_day(self, dt: datetime):
         all_busy_hours = []
         all_clients = self.get_all_clients()
         for client in all_clients:
             date = DateHelper.get_date_from_string(client[3])
             if date.year == dt.year and date.month == dt.month and date.day == dt.day:
-                start = client[4]
-                end = client[5]
-                all_busy_hours + DateHelper.check_busy_hours(start, end)
+                lower = client[4]
+                upper = client[5]
+                all_busy_hours.append(lower)
+                all_busy_hours.append(upper)
         print(f"Busy hours for the day: {all_busy_hours}")
         available_hours = DateHelper.return_available_hours(all_busy_hours)
         print(f"Available hours are: {available_hours}")
@@ -145,3 +123,47 @@ class Database:
             if lower < date < upper:
                 filtered.append(client)
         return filtered
+
+    def toggle_deposit(self, user_id: int):
+        client = self.get_client(user_id)
+        deposit = 1 if client[7] == 0 else 0
+
+        sql = """
+            UPDATE Clients
+            SET has_deposit = ? WHERE user_id = ?
+        """
+        parameters = (deposit, user_id)
+        self.execute(sql, parameters, commit=True)
+
+    def update_session_end(self, user_id: int, end: int):
+        client = self.get_client(user_id)
+        sql = """
+            UPDATE Clients
+            SET session_end = ? WHERE user_id = ?
+        """
+        parameters = (end, user_id)
+        self.execute(sql, parameters, commit=True)
+
+    def prolong_session_hours(self, user_id: int):
+        target_client = self.get_client(user_id)
+        end_hour = target_client[5]  # need to check this and count out hours that are lower
+        dt = DateHelper.get_date_from_string(f"{target_client[3]}")
+
+        all_busy_hours = []
+        all_clients = self.get_all_clients()
+        print("\n\nENTERING HOURS:")
+        for client in all_clients:
+            date = DateHelper.get_date_from_string(client[3])
+            print("comparing date", date, "to", dt)
+            if date.year == dt.year and date.month == dt.month and date.day == dt.day:
+                start = str(client[4])
+                end = str(client[5])
+                print(start, end)
+                all_busy_hours = all_busy_hours + DateHelper.check_busy_hours(start, end)
+                print("busy hours", all_busy_hours)
+        print(all_busy_hours)
+        # new_hours = list(filter(lambda x: x > end_hour, all_busy_hours))
+        # print(f"New hours {new_hours}")
+        available_hours = DateHelper.return_available_hours(all_busy_hours)
+        print(f"Available hours are: {available_hours}")
+        return available_hours
