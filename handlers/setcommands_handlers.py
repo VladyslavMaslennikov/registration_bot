@@ -4,7 +4,6 @@ from aiogram.types import CallbackQuery, ReplyKeyboardRemove
 
 from data.config import admins
 from filters import ShowUpcomingEventsCommand
-from helpers.date_helper import DateHelper
 from model.dialogs import Dialog
 from model.utils import get_description
 
@@ -12,11 +11,10 @@ from loader_model import db, dp
 
 from inline_buttons.events import upcoming_events_callback, return_inline_buttons_for_events
 from inline_buttons.options import options_callback, return_options
-from inline_buttons.hours import return_inline_buttons_for_hours, available_hours_callback
+from inline_buttons.hours import available_hours_callback
 
 
 # statistics commands for admin
-
 @dp.message_handler(ShowUpcomingEventsCommand())
 async def show_stats(message: types.Message):
     user_id = message.chat.id
@@ -39,7 +37,7 @@ async def show_clients(call: CallbackQuery, callback_data: dict):
 
 
 @dp.callback_query_handler(options_callback.filter())
-async def choose_option(call: CallbackQuery, callback_data: dict, state: FSMContext):
+async def choose_option(call: CallbackQuery, callback_data: dict):
     await call.answer(cache_time=60)
     option = int(callback_data.get("option"))
     user_id = callback_data.get("user_id")

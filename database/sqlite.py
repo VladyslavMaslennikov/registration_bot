@@ -108,7 +108,6 @@ class Database:
                 upper = client[5]
                 all_busy_hours.append(lower)
                 all_busy_hours.append(upper)
-        print(f"Busy hours for the day: {all_busy_hours}")
         available_hours = DateHelper.return_available_hours(all_busy_hours)
         print(f"Available hours are: {available_hours}")
         return available_hours
@@ -143,27 +142,3 @@ class Database:
         """
         parameters = (end, user_id)
         self.execute(sql, parameters, commit=True)
-
-    def prolong_session_hours(self, user_id: int):
-        target_client = self.get_client(user_id)
-        end_hour = target_client[5]  # need to check this and count out hours that are lower
-        dt = DateHelper.get_date_from_string(f"{target_client[3]}")
-
-        all_busy_hours = []
-        all_clients = self.get_all_clients()
-        print("\n\nENTERING HOURS:")
-        for client in all_clients:
-            date = DateHelper.get_date_from_string(client[3])
-            print("comparing date", date, "to", dt)
-            if date.year == dt.year and date.month == dt.month and date.day == dt.day:
-                start = str(client[4])
-                end = str(client[5])
-                print(start, end)
-                all_busy_hours = all_busy_hours + DateHelper.check_busy_hours(start, end)
-                print("busy hours", all_busy_hours)
-        print(all_busy_hours)
-        # new_hours = list(filter(lambda x: x > end_hour, all_busy_hours))
-        # print(f"New hours {new_hours}")
-        available_hours = DateHelper.return_available_hours(all_busy_hours)
-        print(f"Available hours are: {available_hours}")
-        return available_hours
