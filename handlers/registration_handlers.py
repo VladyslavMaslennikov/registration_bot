@@ -9,7 +9,6 @@ from filters import CancelCommand, BookSessionCommand
 from helpers.calendar import calendar_callback, create_calendar, process_calendar_selection
 from helpers.date_helper import DateHelper
 from model.dialogs import Dialog
-from helpers.google_api import find_all_events_for_day, create_new_event
 from inline_buttons.hours import available_hours_callback
 from inline_buttons.hours import return_inline_buttons_for_hours
 from loader_model import dp, db
@@ -39,8 +38,11 @@ async def open_calendar(message: types.Message):
         client = db.get_client(user_id)
         if client:
             registered_date = client[3]
+            session_start = client[4]
             dt = DateHelper.get_date_from_string(registered_date)
-            date_desc = f"{dt.year}-{dt.month}-{dt.day} {dt.hour}:00"
+            month = f"{dt.month}" if dt.month > 9 else f"0{dt.month}"
+            day = f"{dt.day}" if dt.day > 9 else f"0{dt.day}"
+            date_desc = f"{day}.{month}.{dt.year} {session_start}:00"
             await message.answer(Dialog.date_desc + f" {date_desc}")
     else:
         await message.answer(Dialog.opening_calendar, reply_markup=ReplyKeyboardRemove())
@@ -60,7 +62,7 @@ async def process_name(callback_query: CallbackQuery, callback_data: dict, state
             await callback_query.message.answer(Dialog.pick_another_day,
                                                 reply_markup=create_calendar())
             return
-        available_hours = find_all_events_for_day(date)
+        available_hours = db.find_all_events_for_day(date)
         if not available_hours:
             await callback_query.message.answer(Dialog.no_available_date,
                                                 reply_markup=create_calendar())
@@ -79,7 +81,7 @@ async def handle_available_hours(call: CallbackQuery, callback_data: dict, state
     await call.answer(cache_time=60)
     picked_hour = callback_data.get("hour")
     await state.update_data(
-        {"hour": str(picked_hour) + ":00"}
+        {"hour": picked_hour}
     )
     await call.message.answer(f"{Dialog.you_picked_hour} {picked_hour}{Dialog.enter_phone}")
     await call.message.edit_reply_markup(reply_markup=None)
@@ -102,8 +104,12 @@ async def ask_username(message: types.Message, state: FSMContext):
 
     user_name = message.text
     user_phone = user_data["phone"]
-    dt = DateHelper.get_date_from_string(user_data["date"] + " " + user_data["hour"])
-    date_desc = f"{dt.year}-{dt.month}-{dt.day} {dt.hour}:00"
+    start_hour = int(user_data["hour"])
+    end_hour = int(start_hour + 1)
+    dt = DateHelper.get_date_from_string(user_data["date"] + " " + f"{start_hour}")
+    month = f"{dt.month}" if dt.month > 9 else f"0{dt.month}"
+    day = f"{dt.day}" if dt.day > 9 else f"0{dt.day}"
+    date_desc = f"{day}.{month}.{dt.year} {start_hour}:00"
     response = f'{Dialog.name_desc} {user_name}\n' \
                f'{Dialog.phone_desc} {user_phone}\n' \
                f'{Dialog.date_desc} {date_desc}'
@@ -111,9 +117,10 @@ async def ask_username(message: types.Message, state: FSMContext):
     await state.finish()
     await state.reset_state(with_data=True)
 
-    event_created = create_new_event(dt, user_name, user_phone)
-    if event_created:
-        user_id = message.chat.id
-        client_added = db.add_client(user_id, user_phone, f"{datetime.now()}", f"{dt}", user_name)
-        print(client_added)
-        await message.answer(Dialog.thanks_for_registration)
+    user_id = message.chat.id
+    client_added = db.add_client(user_id=user_id,phone=user_phone, creation_date=f"{datetime.now()}",
+                                 registration_date=f"{dt}", start=start_hour, end=end_hour,
+                                 user_name=user_name, deposit=0)
+    print(client_added)
+    await message.answer(Dialog.thanks_for_registration)
+

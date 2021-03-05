@@ -1,7 +1,6 @@
 import sqlite3
 from datetime import datetime, timedelta
 from helpers.date_helper import DateHelper
-from helpers import google_api
 
 
 class Database:
@@ -37,7 +36,10 @@ class Database:
         phone TEXT NOT NULL,
         creation_date TEXT NOT NULL,
         registration_date TEXT NOT NULL,
+        session_start INTEGER NOT NULL,
+        session_end INTEGER NOT NULL,
         user_name TEXT NOT NULL,
+        has_deposit INTEGER NOT NULL,
         PRIMARY KEY (user_id)
         );
         """
@@ -50,16 +52,16 @@ class Database:
         parameters = (user_id,)
         return self.execute(sql, parameters=parameters, fetchOne=True)
 
-    def add_client(self, user_id: int, phone: str, creation_date: str, registration_date: str, user_name: str):
+    def add_client(self, user_id: int, phone: str, creation_date: str,
+                   registration_date: str, start: int, end: int, user_name: str, deposit: int):
         user_exists = self.get_client(user_id)
         if user_exists:
             print("Client already exists")
             return False
         else:
-            sql = """
-            INSERT INTO Clients(user_id, phone, creation_date, registration_date, user_name) VALUES (?, ?, ?, ?, ?)
-            """
-            parameters = (user_id, phone, creation_date, registration_date, user_name)
+            sql = """INSERT INTO Clients(user_id, phone, creation_date, registration_date, session_start, 
+            session_end, user_name, has_deposit) VALUES (?, ?, ?, ?, ?, ?, ?, ?) """
+            parameters = (user_id, phone, creation_date, registration_date, start, end, user_name, deposit)
             self.execute(sql, parameters=parameters, commit=True)
             return True
 
@@ -71,10 +73,6 @@ class Database:
                 DELETE FROM Clients WHERE user_id = ?
                 """
         parameters = (user_id,)
-        client = self.get_client(user_id)
-        if client:
-            registered_date = client[3]
-            google_api.delete_event(registered_date)
         self.execute(sql, parameters, commit=True)
 
     def check_if_user_has_appointment(self, user_id: int):
@@ -85,8 +83,10 @@ class Database:
         if not client:
             return False
         client = client[0]
-        registration_date_str = client[3]
-        registration_date = DateHelper.get_date_from_string(registration_date_str)
+        session_date = client[3]
+        session_start = client[4]
+        dt = DateHelper.get_date_from_string(session_date)
+        registration_date = datetime(dt.year, dt.month, dt.day, int(session_start))
         current_date = datetime.now()
         if registration_date < current_date:
             self.delete_the_user(user_id)
@@ -109,10 +109,28 @@ class Database:
             for client in clients:
                 creation_date = DateHelper.get_date_from_string(client[2])
                 if lower_date < creation_date < current_date:
-                    name = client[4]
+                    name = client[6]
                     phone = client[1]
-                    registered = client[3]
+                    dt = DateHelper.get_date_from_string(client[3])
+
+                    month = f"{dt.month}" if dt.month > 9 else f"0{dt.month}"
+                    day = f"{dt.day}" if dt.day > 9 else f"0{dt.day}"
+                    registered = f"{day}.{month}.{dt.year} {client[4]}:00-{client[5]}:00"
                     client_desc = f"Имя: {name}, телефон: {phone}, дата записи: {registered}\n"
                     print(client_desc)
                     new_clients += client_desc
             return new_clients
+
+    def find_all_events_for_day(self, dt: datetime):
+        all_busy_hours = []
+        all_clients = self.get_all_clients()
+        for client in all_clients:
+            date = DateHelper.get_date_from_string(client[3])
+            if date.year == dt.year and date.month == dt.month and date.day == dt.day:
+                start = client[4]
+                end = client[5]
+                all_busy_hours + DateHelper.check_busy_hours(start, end)
+        print(f"Busy hours for the day: {all_busy_hours}")
+        available_hours = DateHelper.return_available_hours(all_busy_hours)
+        print(f"Available hours are: {available_hours}")
+        return available_hours
