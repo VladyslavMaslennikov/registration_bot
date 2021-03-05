@@ -2,16 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2def4d3b-830e-44a3-95e7-91ef3389d632" name="Default Changelist" comment="Inline button example set">
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/project_bot_one.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/main.db" beforeDir="false" afterPath="$PROJECT_DIR$/data/main.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/sqlite.py" beforeDir="false" afterPath="$PROJECT_DIR$/database/sqlite.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handlers/setcommands_handlers.py" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/setcommands_handlers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/loader_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/loader_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
