@@ -27,7 +27,7 @@ async def bot_start(message: types.Message):
     await message.answer(Dialog.welcome_message)
     # set admin command
     user_id = message.chat.id
-    print(user_id)
+    print(user_id, message.chat.username)
     if user_id in admins:
         await dp.bot.set_my_commands(commands=[
             BotCommand(command="menu", description=Dialog.menu_inline_description),
