@@ -1,7 +1,7 @@
 from aiogram import types
 from aiogram.dispatcher.storage import FSMContext
 from aiogram.types import ReplyKeyboardRemove, CallbackQuery
-
+from data.config import admins
 from datetime import datetime
 
 from filters import CancelCommand, BookSessionCommand
@@ -119,4 +119,6 @@ async def ask_username(message: types.Message, state: FSMContext):
                                  user_name=user_name, deposit=0)
     print(client_added)
     await message.answer(Dialog.thanks_for_registration)
+    for admin in admins:
+        await dp.bot.send_message(chat_id=admin, text=f"{user_name} только что записался на сеанс.")
 
