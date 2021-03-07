@@ -106,8 +106,8 @@ class Database:
             if date.year == dt.year and date.month == dt.month and date.day == dt.day:
                 lower = client[4]
                 upper = client[5]
-                all_busy_hours.append(lower)
-                all_busy_hours.append(upper)
+                session_hours = [x for x in range(lower, upper)]
+                all_busy_hours = all_busy_hours + session_hours
         available_hours = DateHelper.return_available_hours(all_busy_hours)
         print(f"Available hours are: {available_hours}")
         return available_hours

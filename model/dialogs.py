@@ -1,20 +1,28 @@
 class Dialog(object):
-    welcome_message = "Добро пожаловать. Для записи на сеанс пройдите в Меню."
+    welcome_message = """
+Привет \U0001F44B. 
+
+Открывай /menu и выбирай что интересует \U0001F60E:
+    • Записывайся на сеанс
+    • Отменяй запись, если нужно
+    • Узнай правила ухода за тату
+    • Свяжись со мной, если будут вопросы   
+    """
     opening_menu = "Открываю Меню..."
     opening_calendar = "Открываю календарь..."
-    pick_date = "Выберите дату"
-    you_picked_day = "Вы выбрали"
-    pick_hour = "Выберите время"
-    you_picked_hour = "Вы выбрали время на"
-    enter_phone = ":00. Пожалуйста, введите номер телефона"
-    pick_another_day = "Пожалуйста, выберите другой день"
-    no_available_date = "Нет свободной записи. Пожалуйста, выберите другой день"
+    pick_date = "Выбери дату"
+    you_picked_day = "Ты выбрал"
+    pick_hour = "Выбери время"
+    you_picked_hour = "Ты выбрал время на"
+    enter_phone = ":00. Введи номер телефона"
+    pick_another_day = "Пожалуйста, выбери другой день"
+    no_available_date = "Нет свободной записи. Пожалуйста, выбери другой день"
     enter_name = "Введите имя и фамилию"
-    thanks_for_registration = "Спасибо за регистрацию. Я свяжусь с Вами в течении дня."
+    thanks_for_registration = "Спасибо за регистрацию. Я напишу тебе в ближайшее время."
     name_desc = "Имя и фамилия:"
     phone_desc = "Телефон:"
     date_desc = "Дата записи:"
-    already_have_appointment = "К сожалению, Вы можете записаться только на один прием."
+    already_have_appointment = "К сожалению, ты можешь записаться только на один прием."
     no_appointment_for_you = "Вы не записаны на сеанс в ближайшее время."
     cancellation_success = "Запись успешно отменена."
     new_clients_are = "Новые клиенты:"
@@ -42,3 +50,4 @@ class Dialog(object):
     tattoo_care = "\U0001F481 Уход за тату"
     how_to_get = "\U0001F4CD Контакты"
     cancel_session = "\U0001F645 Отменить запись"
+    show_calendar_sessions = "\U0001F4C6 Открыть календарь"

@@ -13,7 +13,7 @@ def return_inline_buttons_for_events(events: list):
         date = DateHelper.get_formatted_date(event[3], event[4]) + f"-{event[5]}:00"
         name = event[6]
         user_id = event[0]
-        button = [InlineKeyboardButton(text=name + "\n" + date,
+        button = [InlineKeyboardButton(text=name + " \n" + date,
                                        callback_data=upcoming_events_callback.new(user_id=user_id))]
         buttons.append(button)
     markup = InlineKeyboardMarkup(row_width=count, inline_keyboard=buttons)
